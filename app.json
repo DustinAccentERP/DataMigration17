@@ -1,0 +1,27 @@
+{
+  "id": "5fd356c0-320f-4640-815c-6a42be0fa3d5",
+  "name": "DataMigration",
+  "publisher": "Accent Software",
+  "version": "1.0.0.5",
+  "brief": "",
+  "target":"OnPrem",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "16.0.0.0",
+  "application": "16.0.0.0",
+  "idRanges": [
+    {
+      "from": 90000,
+      "to": 99999
+    }
+  ],
+  "contextSensitiveHelpUrl": "https://DataMigration.com/help/",
+  "showMyCode": true,
+  "runtime": "5.0"
+}
