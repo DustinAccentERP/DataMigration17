@@ -2,7 +2,7 @@
   "id": "5fd356c0-320f-4640-815c-6a42be0fa3d5",
   "name": "DataMigration",
   "publisher": "Accent Software",
-  "version": "1.0.0.5",
+  "version": "1.0.0.40",
   "brief": "",
   "target":"OnPrem",
   "description": "",
@@ -11,7 +11,9 @@
   "help": "",
   "url": "",
   "logo": "",
-  "dependencies": [],
+  "dependencies": [
+   
+  ],
   "screenshots": [],
   "platform": "16.0.0.0",
   "application": "16.0.0.0",
