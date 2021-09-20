@@ -1,5 +1,8 @@
-xmlport 90064 "Master Item"
+xmlport 90064 "ASI Master Item"
 {
+    Format = VariableText;
+    FieldSeparator = '<TAB>';
+
     schema
     {
         textelement(Root)
@@ -24,6 +27,9 @@ xmlport 90064 "Master Item"
                 {
                 }
                 textelement(Description2)
+                {
+                }
+                textelement(BOM)
                 {
                 }
                 textelement(BaseUom)
@@ -74,12 +80,12 @@ xmlport 90064 "Master Item"
                 textelement(IndirectCostPer)
                 {
                 }
-                textelement(CostIsAdjusted)
-                {
-                }
-                textelement(AllowOnlineAdj)
-                {
-                }
+                //textelement(CostIsAdjusted)
+                //{
+                //}
+                //textelement(AllowOnlineAdj)
+                //{
+                //}
                 textelement(VendorNo)
                 {
                 }
@@ -338,8 +344,12 @@ xmlport 90064 "Master Item"
                     var
                         lvItem: Record Item;
                     begin
-                        lvItem.Init();
-                        lvItem."No." := No;
+                        if not lvItem.Get(ItemNo) then begin
+                            lvItem.Init();
+                            lvItem."No." := No;
+                            lvItem.Insert();
+                        end;
+
                         lvItem."No. 2" := No2;
                         lvItem.Description := Description;
                         lvItem."Search Description" := SearchDesc;
@@ -360,8 +370,8 @@ xmlport 90064 "Master Item"
                         Evaluate(lvItem."Standard Cost", StandCost);
                         Evaluate(lvItem."Last Direct Cost", LastDirectCost);
                         Evaluate(lvItem."Indirect Cost %", IndirectCostPer);
-                        Evaluate(lvItem."Cost is Adjusted", CostIsAdjusted);
-                        Evaluate(lvItem."Allow Online Adjustment", AllowOnlineAdj);
+                        //Evaluate(lvItem."Cost is Adjusted", CostIsAdjusted);
+                        // Evaluate(lvItem."Allow Online Adjustment", AllowOnlineAdj);
                         lvItem."Vendor No." := VendorNo;
                         lvItem."Vendor Item No." := VendorItemNo;
                         Evaluate(lvItem."Lead Time Calculation", LeadTimeCalc);
@@ -447,7 +457,9 @@ xmlport 90064 "Master Item"
                         Evaluate(lvItem."Order Tracking Policy", OrderTrackingPolicy);
                         Evaluate(lvItem.Critical, Critical);
                         lvItem."Common Item No." := CommonItemNo;
-                        lvItem.Insert();
+
+                        lvItem.Modify();
+                        Commit();
                     end;
                 }
                 trigger OnBeforeInsertRecord();
@@ -458,289 +470,6 @@ xmlport 90064 "Master Item"
                         currXMLport.Skip;
                 end;
             }
-            tableelement("Unit of Measure"; "Unit of Measure")
-            {
-                XmlName = 'UoM';
-                textelement(Code)
-                {
-                    trigger OnAfterAssignVariable()
-                    begin
-                        Evaluate(UoMCode, Code);
-                    end;
-                }
-                textelement(Desc)
-                {
-                    trigger OnAfterAssignVariable()
-                    var
-                        lvUoM: Record "Unit of Measure";
-                    begin
-                        if lvUoM.get(UoMCode) then begin
-                            lvUoM.Description := Desc;
-                            lvUoM.Modify();
-                        end else begin
-                            lvUoM.Init();
-                            lvUoM.Code := Code;
-                            lvUom.Description := Desc;
-                            lvUoM.Insert();
-                        end;
-                    end;
-                }
-                trigger OnBeforeInsertRecord();
-                var
-                    lvUoM: record "Unit of Measure";
-                begin
-                    if lvUoM.get(UoMCode) then
-                        currXMLport.Skip;
-                end;
-            }
-            tableelement("Item Unit of Measure"; "Item Unit of Measure")
-            {
-                XmlName = 'ItemUoM';
-                textelement(iuomItemNo)
-                {
-                    trigger OnAfterAssignVariable()
-                    begin
-                        ItemUoMItemNo := iuomItemNo;
-                    end;
-                }
-                textelement(iuomCode)
-                {
-                    trigger OnAfterAssignVariable()
-                    begin
-                        ItemUoMCode := iuomCode;
-                    end;
-                }
-                textelement(QtyPer)
-                {
-                }
-                textelement(Length)
-                {
-                }
-                textelement(Width)
-                {
-                }
-                textelement(Height)
-                {
-                }
-                textelement(Cubage)
-                {
-                }
-                textelement(Weight)
-                {
-                    trigger OnAfterAssignVariable()
-                    var
-                        lvUoM: Record "Item Unit of Measure";
-                    begin
-                        if lvUoM.get(ItemUoMItemNo, ItemUoMCode) then begin
-                            Evaluate(lvUoM."Qty. per Unit of Measure", QtyPer);
-                            Evaluate(lvUoM.Length, Length);
-                            Evaluate(lvUoM.Width, Width);
-                            Evaluate(lvUoM.Height, Height);
-                            Evaluate(lvUoM.Cubage, Cubage);
-                            Evaluate(lvUoM.Weight, Weight);
-                            lvUoM.Modify();
-                        end else begin
-                            lvUoM.Init();
-                            lvUoM."Item No." := iuomItemNo;
-                            lvUoM.Code := iuomCode;
-                            Evaluate(lvUoM."Qty. per Unit of Measure", QtyPer);
-                            Evaluate(lvUoM.Length, Length);
-                            Evaluate(lvUoM.Width, Width);
-                            Evaluate(lvUoM.Height, Height);
-                            Evaluate(lvUoM.Cubage, Cubage);
-                            Evaluate(lvUoM.Weight, Weight);
-                            lvUoM.Insert();
-                        end;
-
-                    end;
-                }
-                trigger OnBeforeInsertRecord();
-                var
-                    lvIUoM: record "Item Unit of Measure";
-                begin
-                    if lvIUoM.get(ItemUoMItemNo, ItemUoMCode) then
-                        currXMLport.Skip;
-                end;
-            }
-            tableelement("Bin Content"; "Bin Content")
-            {
-                XmlName = 'BinContent';
-                textelement(BCLocationCode)
-                {
-                    trigger OnAfterAssignVariable()
-                    begin
-                        BinContentLocationCode := BCLocationCode;
-                    end;
-                }
-                textelement(BCZoneCode)
-                {
-                }
-                textelement(BCBinCode)
-                {
-                    trigger OnAfterAssignVariable()
-                    begin
-                        BinContentBinCode := BCBinCode;
-                    end;
-                }
-                textelement(BCItemNo)
-                {
-                    trigger OnAfterAssignVariable()
-                    begin
-                        BinContentItemNo := BCItemNo;
-                    end;
-                }
-                textelement(BCBinTypeCode)
-                {
-                }
-                textelement(BCWarehouseClassCode)
-                {
-                }
-                textelement(BCBlockmovement)
-                {
-                }
-                textelement(BCMinQty)
-                {
-                }
-                textelement(BCMaxQty)
-                {
-                }
-                textelement(BCBinRanking)
-                {
-                }
-                textelement(BCQty)
-                {
-                }
-                textelement(BCPickQty)
-                {
-                }
-                textelement(BCNegadjQty)
-                {
-                }
-                textelement(BCPutAwayQty)
-                {
-                }
-                textelement(BCPosAdjQty)
-                {
-                }
-                textelement(BCFixed)
-                {
-                }
-                textelement(BCCrossdockBin)
-                {
-                }
-                textelement(BCDefault)
-                {
-                }
-                textelement(BCQtyBase)
-                {
-                }
-                textelement(BCPickQtyBase)
-                {
-                }
-                textelement(BCNegadjQtyBase)
-                {
-                }
-                textelement(BCPutawayQtyBase)
-                {
-                }
-                textelement(BCPosadjuQtyBase)
-                {
-                }
-                textelement(BCVariantCode)
-                {
-                    trigger OnAfterAssignVariable()
-                    begin
-                        BinContentVariantCode := BCVariantCode;
-                    end;
-                }
-                textelement(BCqtyPer)
-                {
-                }
-                textelement(BCUoM)
-                {
-
-                    trigger OnAfterAssignVariable()
-                    var
-                        lvBinContent: Record "Bin Content";
-                    begin
-                        BinContentUomCode := BCUoM;
-
-                        if lvBinContent.get(BinContentLocationCode, BinContentBinCode, BinContentItemNo, BinContentVariantCode, BinContentUomCode) then begin
-                            lvBinContent."Zone Code" := BCZoneCode;
-                            lvBinContent."Warehouse Class Code" := BCWarehouseClassCode;
-                            Evaluate(lvBinContent."Block Movement", BCBlockmovement);
-                            Evaluate(lvBinContent."Min. Qty.", BCMinQty);
-                            Evaluate(lvBinContent."Max. Qty.", BCMaxQty);
-                            Evaluate(lvBinContent."Bin Ranking", BCBinRanking);
-                            Evaluate(lvBinContent.Quantity, BCQty);
-                            Evaluate(lvBinContent."Pick Qty.", BCPickQty);
-                            Evaluate(lvBinContent."Neg. Adjmt. Qty.", BCNegadjQty);
-                            Evaluate(lvBinContent."Put-away Qty.", BCPutAwayQty);
-                            Evaluate(lvBinContent."Pos. Adjmt. Qty.", BCPosAdjQty);
-                            Evaluate(lvBinContent.Fixed, BCFixed);
-                            Evaluate(lvBinContent."Cross-Dock Bin", BCCrossdockBin);
-                            Evaluate(lvBinContent.Default, BCDefault);
-                            Evaluate(lvBinContent."Quantity (Base)", BCQtyBase);
-                            Evaluate(lvBinContent."Pick Quantity (Base)", BCPickQtyBase);
-                            Evaluate(lvBinContent."Negative Adjmt. Qty. (Base)", BCNegadjQtyBase);
-                            Evaluate(lvBinContent."Put-away Quantity (Base)", BCPutawayQtyBase);
-                            Evaluate(lvBinContent."Positive Adjmt. Qty. (Base)", BCPosadjuQtyBase);
-                            Evaluate(lvBinContent."Qty. per Unit of Measure", BCqtyPer);
-                            lvBinContent.Modify();
-                        end else begin
-                            clear(lvBinContent);
-                            lvBinContent.Init();
-                            lvBinContent."Location Code" := BCLocationCode;
-                            lvBinContent."Zone Code" := BCZoneCode;
-                            lvBinContent."Bin Code" := BCBinCode;
-                            lvBinContent."Item No." := BCItemNo;
-                            lvBinContent."Bin Type Code" := BCBinTypeCode;
-                            lvBinContent."Warehouse Class Code" := BCWarehouseClassCode;
-                            Evaluate(lvBinContent."Block Movement", BCBlockmovement);
-                            Evaluate(lvBinContent."Min. Qty.", BCMinQty);
-                            Evaluate(lvBinContent."Max. Qty.", BCMaxQty);
-                            Evaluate(lvBinContent."Bin Ranking", BCBinRanking);
-                            Evaluate(lvBinContent.Quantity, BCQty);
-                            Evaluate(lvBinContent."Pick Qty.", BCPickQty);
-                            Evaluate(lvBinContent."Neg. Adjmt. Qty.", BCNegadjQty);
-                            Evaluate(lvBinContent."Put-away Qty.", BCPutAwayQty);
-                            Evaluate(lvBinContent."Pos. Adjmt. Qty.", BCPosAdjQty);
-                            Evaluate(lvBinContent.Fixed, BCFixed);
-                            Evaluate(lvBinContent."Cross-Dock Bin", BCCrossdockBin);
-                            Evaluate(lvBinContent.Default, BCDefault);
-                            Evaluate(lvBinContent."Quantity (Base)", BCQtyBase);
-                            Evaluate(lvBinContent."Pick Quantity (Base)", BCPickQtyBase);
-                            Evaluate(lvBinContent."Negative Adjmt. Qty. (Base)", BCNegadjQtyBase);
-                            Evaluate(lvBinContent."Put-away Quantity (Base)", BCPutawayQtyBase);
-                            Evaluate(lvBinContent."Positive Adjmt. Qty. (Base)", BCPosadjuQtyBase);
-                            lvBinContent."Variant Code" := BCVariantCode;
-                            Evaluate(lvBinContent."Qty. per Unit of Measure", BCqtyPer);
-                            lvBinContent."Unit of Measure Code" := BCUoM;
-                            lvBinContent.Insert();
-                        end;
-                    end;
-                }
-                trigger OnBeforeInsertRecord();
-                var
-                    lvBinContent: record "Bin Content";
-                begin
-                    // Location Code,Bin Code,Item No.,Variant Code,Unit of Measure Code
-                    if lvBinContent.get(BinContentLocationCode, BinContentBinCode, BinContentItemNo, BinContentVariantCode, BinContentUomCode) then
-                        currXMLport.Skip;
-                end;
-            }
-        }
-    }
-
-    requestpage
-    {
-
-        layout
-        {
-        }
-
-        actions
-        {
         }
     }
 
